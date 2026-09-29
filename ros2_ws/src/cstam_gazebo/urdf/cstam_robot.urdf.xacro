@@ -277,4 +277,8 @@
     </visual>
   </gazebo>
 
+  <!-- Casters slide with no friction, so they don't drag (better odometry for SLAM) -->
+  <gazebo reference="caster_front"><mu1>0.0</mu1><mu2>0.0</mu2></gazebo>
+  <gazebo reference="caster_rear"><mu1>0.0</mu1><mu2>0.0</mu2></gazebo>
+
 </robot>
