@@ -3,13 +3,14 @@
 
 A Tunisian courtyard house (dar) turned into a romantic, classy fine-dining
 restaurant, evening mood:
-  - central courtyard with a marble fountain, gold-trimmed columns, rose trees
-    in gold pots, fairy lights overhead, and a black-and-white marble floor
+  - central courtyard with a grand 3-tier ivory marble fountain, gold-trimmed
+    columns, soft fairy lights overhead, and an ivory/black marble inlay floor
   - kitchen behind a gold-framed door, Bey's Salon (VIP) behind a narrow
     gold-framed arch topped with a gold medallion
   - red carpet with gold edges from the entrance to the courtyard
-  - round tables with floor-length cloths, chairs, a rose vase, candles and a
-    crystal chandelier overhead (burgundy velvet chairs; gold chairs in the VIP)
+  - fine-dining round tables: floor-length linen, high-back velvet chairs, full
+    place settings, a low rose centrepiece with a glass candle, and a two-tier
+    crystal chandelier overhead (champagne chairs; burgundy + gold in the VIP)
 
 Everything is built from simple shapes (boxes / cylinders / spheres), so no mesh
 files are needed. To change the layout, edit the numbers in the LAYOUT section and run:
@@ -70,10 +71,16 @@ DOCK = (-10.8, -1.45)                     # charging station against the west wa
 # ============================== DETAIL SETTINGS ==============================
 # Lower these if Gazebo gets slow (software rendering).
 FOUNTAIN_JETS = 8                         # thin glowing water jets in the lower basin
+HEDGE_ROSE_SPACING = 0.30                 # metres between roses along each of 2 rows per planter
 FAIRY_LIGHTS = True                       # bulbs strung across the courtyard
 FAIRY_ROWS_Y = (-2.0, 4.0)                # one string along each arcade edge
 FAIRY_BULBS_PER_ROW = 7
 FAIRY_GLOW = (0.55, 0.48, 0.36)           # soft warm white
+PLACE_SETTINGS = True                     # plate, charger, napkin, cutlery, 2 glasses per chair
+CHAIR_LEGS = True                         # thin gold chair legs (4 per chair)
+CENTREPIECE_ROSES = 6                     # roses around the candle in each table's gold bowl
+CHAND_CRYSTALS_OUTER = 8                  # chandelier crystals, lower/outer tier
+CHAND_CRYSTALS_INNER = 5                  # chandelier crystals, upper/inner tier
 
 # ============================== COLOURS ==============================
 # Romantic / classy "Dar TuniBot" palette: cream + gold trim, champagne floor,
@@ -83,16 +90,20 @@ C = {
     'ivory': (0.95, 0.92, 0.84),        # ivory marble (fountain, courtyard floor, column shafts)
     'champagne': (0.86, 0.78, 0.62),    # champagne marble (floor medallion)
     'black_marble': (0.06, 0.06, 0.07),
-    'teal': (0.03, 0.26, 0.28),         # deep teal fountain water
+    'teal': (0.01, 0.13, 0.15),         # deep, dark teal fountain water (see-through)
     'sand': (0.93, 0.88, 0.78),
     'terracotta': (0.55, 0.30, 0.17),
-    'leaf': (0.22, 0.48, 0.22),         # terrace hedges
-    'wood': (0.40, 0.25, 0.13),
+    'leaf': (0.07, 0.24, 0.09),         # dark boxwood terrace hedges
     'dark_wood': (0.20, 0.12, 0.07),    # skirting at the base of the walls
     'steel': (0.55, 0.58, 0.62),
-    'cloth': (0.96, 0.90, 0.88),        # white/blush cloth (regular tables)
-    'vip_cloth': (0.42, 0.04, 0.10),    # burgundy cloth (VIP tables)
-    'pouf': (0.35, 0.04, 0.09),         # burgundy velvet chairs
+    'linen': (0.95, 0.93, 0.87),        # ivory linen cloth (regular tables)
+    'vip_cloth': (0.42, 0.04, 0.10),    # burgundy cloth (VIP tables, red carpet)
+    'champagne_velvet': (0.78, 0.68, 0.50),  # regular chairs
+    'burgundy_velvet': (0.36, 0.04, 0.09),   # VIP chairs
+    'porcelain': (0.98, 0.98, 0.97),    # dinner plates, napkins, candles
+    'crystal': (0.90, 0.92, 0.96),      # chandelier crystals, glassware
+    'rose_white': (0.97, 0.95, 0.91),
+    'blush': (0.93, 0.70, 0.72),
     'gold': (0.80, 0.63, 0.21),         # trim, chair frames, door frames, columns
     'dock': (0.10, 0.65, 0.30),
     'floor': (0.90, 0.83, 0.69),        # champagne floor
@@ -142,16 +153,19 @@ class Part(str):
 COLLISIONS = []
 
 
-def part(name, shape, size, pose, colour, collide=True, emissive=None, rp=(0, 0), transparency=0):
+def part(name, shape, size, pose, colour, collide=True, emissive=None, rp=(0, 0), transparency=0,
+         visible=True):
     """One visual (+ collision) element inside a link. pose = (x, y, z, yaw).
     rp = (roll, pitch) tilts the part; only allowed on visual-only parts, since
-    the navigability checker assumes collision shapes are upright."""
+    the navigability checker assumes collision shapes are upright.
+    visible=False writes only the collision (an invisible solid block)."""
     x, y, z, yaw = pose
     assert rp == (0, 0) or not collide, f'{name}: tilted parts must be visual only'
+    assert visible or collide, f'{name}: a part must be visible or solid'
     p = f'<pose>{x:.3f} {y:.3f} {z:.3f} {rp[0]:.4f} {rp[1]:.4f} {yaw:.4f}</pose>'
     g = geom(shape, size)
     t = f'<transparency>{transparency}</transparency>' if transparency else ''
-    s = f'<visual name="{name}_v">{p}<geometry>{g}</geometry>{t}{mat(colour, emissive)}</visual>'
+    s = f'<visual name="{name}_v">{p}<geometry>{g}</geometry>{t}{mat(colour, emissive)}</visual>' if visible else ''
     if collide:
         s += f'<collision name="{name}_c">{p}<geometry>{g}</geometry></collision>'
     return Part(s, shape, size, pose, collide)
@@ -257,7 +271,7 @@ def build():
             part(f'{name}', 'cyl', (r, depth), (0, 0, z_top - depth / 2, 0), 'ivory'),
             part(f'{name}_trim', 'cyl', (r + 0.02, 0.03), (0, 0, z_top - 0.012, 0), 'gold', collide=False),
             part(f'{name}_water', 'cyl', (r - 0.05, 0.008), (0, 0, z_top + 0.007, 0), 'teal',
-                 collide=False, emissive=(0.04, 0.20, 0.22)),
+                 collide=False, emissive=(0.01, 0.05, 0.06), transparency=0.6),
         ]
 
     fx, fy = FOUNTAIN
@@ -268,10 +282,9 @@ def build():
     fp += octagon('basin_foot', 1.40, 0.04, 0.12, 'gold')                     # r 0.99, gold band low down
     fp += octagon('basin_rim', 1.40, 0.055, 0.4775, 'gold')                   # r 0.99, top 0.505
     fp += [
-        # basin water: dark floor, warm glow spots, then see-through glowing teal surface
-        part('basin_floor', 'cyl', (0.84, 0.004), (0, 0, 0.507, 0), 'teal', collide=False),
+        # basin water: warm glow spots on the ivory basin floor, under a see-through deep teal surface
         part('water', 'cyl', (0.84, 0.008), (0, 0, 0.516, 0), 'teal', collide=False,
-             emissive=(0.04, 0.22, 0.24), transparency=0.35),
+             emissive=(0.01, 0.05, 0.06), transparency=0.6),
         # tier 1 pedestal + middle bowl
         part('pedestal1', 'cyl', (0.17, 0.50), (0, 0, 0.75, 0), 'ivory'),
         part('pedestal1_collar', 'cyl', (0.20, 0.03), (0, 0, 0.53, 0), 'gold', collide=False),
@@ -294,17 +307,17 @@ def build():
     for k in range(4):
         a = math.pi / 4 + k * math.pi / 2
         fp.append(part(f'glow{k}', 'cyl', (0.10, 0.002), (0.45 * math.cos(a), 0.45 * math.sin(a), 0.510, 0),
-                       'gold', collide=False, emissive=(1.0, 0.70, 0.35)))
+                       'gold', collide=False, emissive=(0.55, 0.38, 0.18)))
     # thin glowing water: jets rising from the basin + streams falling from the middle bowl
     for k in range(FOUNTAIN_JETS):
         a = 2 * math.pi * k / FOUNTAIN_JETS
         tilt, L, r0 = 0.25, 0.35, 0.74        # jets lean slightly inward
         r_mid, z_mid = r0 - math.sin(tilt) * L / 2, 0.52 + math.cos(tilt) * L / 2
         fp.append(part(f'jet{k}', 'cyl', (0.008, L), (r_mid * math.cos(a), r_mid * math.sin(a), z_mid, a),
-                       'teal', collide=False, emissive=(0.30, 0.55, 0.55), rp=(0, -tilt), transparency=0.4))
+                       'teal', collide=False, emissive=(0.12, 0.26, 0.27), rp=(0, -tilt), transparency=0.6))
         b = a + math.pi / FOUNTAIN_JETS
         fp.append(part(f'fall{k}', 'cyl', (0.006, 0.52), (0.61 * math.cos(b), 0.61 * math.sin(b), 0.78, 0),
-                       'teal', collide=False, emissive=(0.30, 0.55, 0.55), transparency=0.5))
+                       'teal', collide=False, emissive=(0.12, 0.26, 0.27), transparency=0.65))
     out.append(model('fountain', fp, (fx, fy, 0, 0)))
 
     # ---------- arcade columns ----------
@@ -315,38 +328,79 @@ def build():
             part('capital', 'box', (0.5, 0.5, 0.15), (0, 0, WALL_H - 0.3, 0), 'gold', collide=False),
         ], (x, y, 0, 0)))
 
-    # ---------- round tables: floor-length cloth (so the lidar sees them), ----------
-    # ---------- 4 chairs, a rose vase + 2 candles, and a chandelier overhead ----------
+    # ---------- fine-dining round tables ----------
+    # Solid parts (unchanged): cloth cylinder r=0.55 to the floor, and a 0.40 x 0.40
+    # seat box from the floor at radius 0.82 (now invisible). Everything else is visual.
+    TOP = 0.77                                    # height of the cloth-covered table top
     for name, (x, y) in TABLES.items():
         is_vip = name.startswith('vip')
-        cloth = 'vip_cloth' if is_vip else 'cloth'
-        chair_col = 'gold' if is_vip else 'pouf'
+        cloth = 'vip_cloth' if is_vip else 'linen'
+        velvet = 'burgundy_velvet' if is_vip else 'champagne_velvet'
         ps = [part('cloth', 'cyl', (0.55, 0.74), (0, 0, 0.37, 0), cloth),
-              part('top', 'cyl', (0.58, 0.03), (0, 0, 0.755, 0), 'wood', collide=False),
-              part('vase', 'cyl', (0.05, 0.12), (0, 0, 0.83, 0), 'glass', collide=False)]
-        for r in range(3):
-            ang = r * 2 * math.pi / 3
-            ps.append(part(f'rose{r}', 'sphere', (0.035,),
-                           (0.03 * math.cos(ang), 0.03 * math.sin(ang), 0.92, 0), 'rose', collide=False))
-        for c, sx in enumerate((-0.16, 0.16)):
-            ps.append(part(f'candle{c}', 'cyl', (0.018, 0.10), (sx, 0.16, 0.805, 0), 'cloth', collide=False))
-            ps.append(part(f'flame{c}', 'sphere', (0.015,), (sx, 0.16, 0.865, 0), 'gold',
-                           collide=False, emissive=(1.0, 0.55, 0.15)))
-        # 4 chairs at radius 0.82: solid seat (collides) + decorative back (visual only)
+              part('drape', 'cyl', (0.58, 0.04), (0, 0, TOP - 0.02, 0), cloth, collide=False)]
+        if is_vip:  # gold trim at the hem and along the top edge
+            ps.append(part('hem_trim', 'cyl', (0.557, 0.04), (0, 0, 0.03, 0), 'gold', collide=False))
+            ps.append(part('edge_trim', 'cyl', (0.585, 0.012), (0, 0, TOP - 0.035, 0), 'gold', collide=False))
+
+        # centrepiece: low gold bowl of white/blush roses around a glass candle holder
+        ps += [part('bowl', 'cyl', (0.12, 0.05), (0, 0, TOP + 0.025, 0), 'gold', collide=False),
+               part('bowl_foot', 'cyl', (0.06, 0.02), (0, 0, TOP + 0.005, 0), 'gold', collide=False),
+               part('candle', 'cyl', (0.022, 0.10), (0, 0, TOP + 0.10, 0), 'porcelain', collide=False),
+               part('flame', 'sphere', (0.014,), (0, 0, TOP + 0.165, 0), 'gold',
+                    collide=False, emissive=(1.0, 0.60, 0.20)),
+               part('hurricane', 'cyl', (0.045, 0.24), (0, 0, TOP + 0.17, 0), 'crystal',
+                    collide=False, transparency=0.75)]
+        for r in range(CENTREPIECE_ROSES):
+            ang = 2 * math.pi * r / max(CENTREPIECE_ROSES, 1)
+            ps.append(part(f'rose{r}', 'sphere', (0.035,), (0.085 * math.cos(ang), 0.085 * math.sin(ang), TOP + 0.065, 0),
+                           'rose_white' if r % 2 else 'blush', collide=False))
+
+        def at(ang, radial, side, z):
+            """Point in the table frame: 'radial' outward along ang, 'side' to the diner's right (+) or left (-)."""
+            return (radial * math.cos(ang) - side * math.sin(ang), radial * math.sin(ang) + side * math.cos(ang), z, ang)
+
         for a in range(4):
             ang = math.pi / 4 + a * math.pi / 2
+            # --- chair: invisible solid seat block + upholstered high-back chair facing the table ---
             sx, sy = 0.82 * math.cos(ang), 0.82 * math.sin(ang)
-            ps.append(part(f'seat{a}', 'box', (0.40, 0.40, 0.45), (sx, sy, 0.225, 0), chair_col))
-            bx, by = 0.95 * math.cos(ang), 0.95 * math.sin(ang)
-            ps.append(part(f'back{a}', 'box', (0.40, 0.05, 0.45), (bx, by, 0.45, ang + math.pi / 2),
-                           chair_col, collide=False))
-        # crystal chandelier, ~2.5 m up (gold ring + glowing crystal spheres)
-        ps.append(part('chand_ring', 'cyl', (0.32, 0.04), (0, 0, 2.5, 0), 'gold', collide=False))
-        for r in range(6):
-            ang = r * math.pi / 3
-            ps.append(part(f'crystal{r}', 'sphere', (0.035,),
-                           (0.28 * math.cos(ang), 0.28 * math.sin(ang), 2.42, 0), 'ivory',
-                           collide=False, emissive=(0.5, 0.55, 0.6)))
+            ps.append(part(f'seat{a}', 'box', (0.40, 0.40, 0.45), (sx, sy, 0.225, 0), velvet, visible=False))
+            ps += [part(f'seat_frame{a}', 'box', (0.37, 0.37, 0.03), at(ang, 0.82, 0, 0.43), 'gold', collide=False),
+                   part(f'cushion{a}', 'box', (0.36, 0.36, 0.07), at(ang, 0.82, 0, 0.48), velvet, collide=False),
+                   part(f'back_frame{a}', 'box', (0.025, 0.40, 0.62), at(ang, 1.0, 0, 0.78), 'gold', collide=False),
+                   part(f'back{a}', 'box', (0.05, 0.36, 0.58), at(ang, 0.985, 0, 0.78), velvet, collide=False),
+                   part(f'back_top{a}', 'cyl', (0.02, 0.40), at(ang, 1.0, 0, 1.09), 'gold', collide=False,
+                        rp=(math.pi / 2, 0))]
+            if CHAIR_LEGS:  # legs stay inside the solid seat footprint (<= 0.184 m from its centre)
+                for k, (lr, ls) in enumerate([(-0.13, -0.13), (-0.13, 0.13), (0.13, -0.13), (0.13, 0.13)]):
+                    ps.append(part(f'leg{a}_{k}', 'cyl', (0.012, 0.42), at(ang, 0.82 + lr, ls, 0.21), 'gold', collide=False))
+            # --- place setting in front of the chair ---
+            if PLACE_SETTINGS:
+                ps += [part(f'charger{a}', 'cyl', (0.15, 0.006), at(ang, 0.38, 0, TOP + 0.003), 'gold', collide=False),
+                       part(f'plate{a}', 'cyl', (0.12, 0.010), at(ang, 0.38, 0, TOP + 0.011), 'porcelain', collide=False),
+                       part(f'napkin{a}', 'box', (0.05, 0.11, 0.035), at(ang, 0.38, 0, TOP + 0.033), 'porcelain',
+                            collide=False, rp=(0.35, 0)),
+                       part(f'fork{a}', 'box', (0.17, 0.014, 0.004), at(ang, 0.38, -0.18, TOP + 0.002), 'gold', collide=False),
+                       part(f'knife{a}', 'box', (0.18, 0.012, 0.004), at(ang, 0.38, 0.18, TOP + 0.002), 'gold', collide=False),
+                       # wine glass (stem + see-through bowl) and water tumbler, top right of the plate
+                       part(f'wine_stem{a}', 'cyl', (0.004, 0.10), at(ang, 0.23, 0.10, TOP + 0.05), 'crystal', collide=False),
+                       part(f'wine_bowl{a}', 'cyl', (0.035, 0.07), at(ang, 0.23, 0.10, TOP + 0.135), 'crystal',
+                            collide=False, transparency=0.6),
+                       part(f'water{a}', 'cyl', (0.03, 0.10), at(ang, 0.26, 0.18, TOP + 0.05), 'crystal',
+                            collide=False, transparency=0.6)]
+
+        # two-tier crystal chandelier on a gold rod from the ceiling
+        ps += [part('chand_rod', 'cyl', (0.01, 0.50), (0, 0, WALL_H - 0.25, 0), 'gold', collide=False),
+               part('chand_ring', 'cyl', (0.32, 0.03), (0, 0, 2.68, 0), 'gold', collide=False),
+               part('chand_ring_top', 'cyl', (0.18, 0.025), (0, 0, 2.85, 0), 'gold', collide=False),
+               part('chand_drop', 'sphere', (0.05,), (0, 0, 2.52, 0), 'crystal', collide=False,
+                    emissive=(0.55, 0.52, 0.45))]
+        for tier, (n, rr, zz, size) in enumerate([(CHAND_CRYSTALS_OUTER, 0.30, 2.60, 0.035),
+                                                   (CHAND_CRYSTALS_INNER, 0.16, 2.77, 0.03)]):
+            for r in range(n):
+                ang = 2 * math.pi * r / n + tier * math.pi / max(n, 1)
+                ps.append(part(f'crystal{tier}_{r}', 'sphere', (size,),
+                               (rr * math.cos(ang), rr * math.sin(ang), zz, 0), 'crystal',
+                               collide=False, emissive=(0.55, 0.52, 0.45)))
         out.append(model(name, ps, (x, y, 0, 0)))
 
     # ---------- counters, champagne bar, rose-hedge planters ----------
@@ -354,9 +408,13 @@ def build():
         ps = [part('body', 'box', (sx, sy, h), (0, 0, h / 2, 0), col)]
         if name.startswith('planter'):
             ps.append(part('hedge', 'box', (sx - 0.1, sy - 0.1, 0.25), (0, 0, h + 0.12, 0), 'leaf', collide=False))
-            for r in range(4):
-                bx = -sx / 2 + 0.4 + r * (sx - 0.8) / 3
-                ps.append(part(f'bloom{r}', 'sphere', (0.05,), (bx, 0, h + 0.24, 0), 'rose', collide=False))
+            # two staggered rows of roses along the hedge top: mostly red, some blush
+            n = max(2, int((sx - 0.4) / HEDGE_ROSE_SPACING) + 1)
+            for row, by in enumerate((-0.07, 0.07)):
+                for r in range(n):
+                    bx = -sx / 2 + 0.2 + (r + 0.5 * row) * (sx - 0.4 - 0.5 * HEDGE_ROSE_SPACING) / (n - 1)
+                    ps.append(part(f'bloom{row}_{r}', 'sphere', (0.045,), (bx, by, h + 0.25, 0),
+                                   'blush' if (r + row) % 3 == 0 else 'rose', collide=False))
         if name == 'mint_tea_bar':
             ps.append(part('top', 'box', (sx + 0.06, sy + 0.06, 0.05), (0, 0, h + 0.025, 0), 'gold', collide=False))
             for r in range(5):
