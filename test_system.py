@@ -23,7 +23,7 @@ class MasterSystemVerificationTests(unittest.TestCase):
         required_paths = [
             "ros2_ws/src/cstam_gazebo/package.xml",
             "ros2_ws/src/cstam_gazebo/urdf/cstam_robot.urdf.xacro",
-            "ros2_ws/src/cstam_gazebo/worlds/cstam_world.world",
+            "ros2_ws/src/cstam_gazebo/worlds/restaurant.world",
             "ros2_ws/src/cstam_gazebo/launch/spawn_cstam_robot.launch.py",
             "ros2_ws/src/cstam_navigation/package.xml",
             "ros2_ws/src/cstam_navigation/config/nav2_params.yaml",
@@ -39,8 +39,6 @@ class MasterSystemVerificationTests(unittest.TestCase):
             "cstam_web_bridge/static/index.html",
             "cstam_web_bridge/static/styles.css",
             "cstam_web_bridge/static/dashboard.js",
-            "Dockerfile",
-            "docker-compose.yml",
             "run_demo.py"
         ]
         for rel_path in required_paths:

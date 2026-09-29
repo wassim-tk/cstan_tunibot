@@ -1,15 +1,26 @@
 import os
-from ament_index_python.packages import get_package_share_directory
+from ament_index_python.packages import get_package_share_directory, PackageNotFoundError
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, AppendEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, AppendEnvironmentVariable, LogInfo
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
-import xacro
 
 def generate_launch_description():
+    try:
+        import xacro
+        pkg_ros_gz_sim = get_package_share_directory('ros_gz_sim')
+        get_package_share_directory('ros_gz_bridge')
+    except (ImportError, PackageNotFoundError) as e:
+        return LaunchDescription([
+            LogInfo(
+                msg=f"[CSTAM ERROR] Gazebo simulation cannot start: missing dependency ({e}). "
+                    "To install required simulation packages, run: "
+                    "sudo apt update && sudo apt install -y ros-jazzy-xacro ros-jazzy-ros-gz"
+            )
+        ])
+
     pkg_cstam_gazebo = get_package_share_directory('cstam_gazebo')
-    pkg_ros_gz_sim = get_package_share_directory('ros_gz_sim')
 
     # Launch Arguments
     world_arg = DeclareLaunchArgument(
@@ -19,18 +30,23 @@ def generate_launch_description():
     )
     spawn_x_arg = DeclareLaunchArgument(
         'spawn_x',
-        default_value='-6.0',
+        default_value='7.06',
         description='X coordinate for robot spawn'
     )
     spawn_y_arg = DeclareLaunchArgument(
         'spawn_y',
-        default_value='-1.5',
+        default_value='-12.0',
         description='Y coordinate for robot spawn'
     )
     spawn_z_arg = DeclareLaunchArgument(
         'spawn_z',
         default_value='0.1',
         description='Z coordinate for robot spawn'
+    )
+    spawn_yaw_arg = DeclareLaunchArgument(
+        'spawn_yaw',
+        default_value='1.57',
+        description='Yaw rotation for robot spawn (facing North)'
     )
 
     # Ensure Gazebo Sim finds 3D models (both in installed share and source directories)
@@ -78,7 +94,8 @@ def generate_launch_description():
             '-name', 'cstam_robot',
             '-x', LaunchConfiguration('spawn_x'),
             '-y', LaunchConfiguration('spawn_y'),
-            '-z', LaunchConfiguration('spawn_z')
+            '-z', LaunchConfiguration('spawn_z'),
+            '-Y', LaunchConfiguration('spawn_yaw')
         ],
         output='screen'
     )
@@ -102,6 +119,7 @@ def generate_launch_description():
         spawn_x_arg,
         spawn_y_arg,
         spawn_z_arg,
+        spawn_yaw_arg,
         set_env_action,
         gazebo_cmd,
         robot_state_publisher_node,
