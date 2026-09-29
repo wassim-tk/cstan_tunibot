@@ -68,6 +68,27 @@ BOXES = {
 }
 DOCK = (-10.8, -1.45)                     # charging station against the west wall
 
+# Paintings (original art from make_dar_art.py): name -> (texture, x, y, facing, 'land'|'port').
+# (x, y) is a point on the INSIDE face of a wall; facing is the direction the picture looks
+# into the room ('N', 'S', 'E', 'W'). Canvas: landscape 1.2 x 0.9 m, portrait 0.8 x 1.0 m.
+PAINTINGS_AT = {
+    'art_north_west': ('mediterranean_seascape', -4.2, 7.9, 'S', 'land'),   # north arcade wall
+    'art_north_mid': ('sidi_bou_said_sunset', 0.0, 7.9, 'S', 'land'),
+    'art_north_east': ('desert_dunes_night', 4.2, 7.9, 'S', 'land'),
+    'art_dock': ('zellige_arch', -10.9, -1.45, 'E', 'land'),               # west wall, above the dock
+    'art_bar': ('gold_burgundy_bands', 10.9, -1.0, 'W', 'land'),           # east wall, above the bar
+    'art_terrace_west': ('olive_grove', -5.4, -7.9, 'N', 'land'),          # terrace south wall
+    'art_terrace_east': ('blue_door', 5.4, -7.9, 'N', 'port'),
+    'art_salon_east': ('roses_still_life', 10.9, 5.3, 'W', 'port'),        # inside Bey's Salon
+    'art_salon_west': ('gold_burgundy_rings', 6.1, 5.5, 'E', 'port'),
+}
+PAINTING_Z = 1.7                          # height of the canvas centre
+
+# Grand piano in the NE corner of the courtyard; yaw turns the keyboard to face the fountain.
+# (3.18, 3.17) is 3.85 m from the fountain: any closer and the bench blocks the fountain loop
+# (the checker needs about 3.80 m at yaw 0.6).
+PIANO_X, PIANO_Y, PIANO_YAW = 3.18, 3.17, 0.6
+
 # ============================== DETAIL SETTINGS ==============================
 # Lower these if Gazebo gets slow (software rendering).
 FOUNTAIN_JETS = 8                         # thin glowing water jets in the lower basin
@@ -81,6 +102,10 @@ CHAIR_LEGS = True                         # thin gold chair legs (4 per chair)
 CENTREPIECE_ROSES = 6                     # roses around the candle in each table's gold bowl
 CHAND_CRYSTALS_OUTER = 8                  # chandelier crystals, lower/outer tier
 CHAND_CRYSTALS_INNER = 5                  # chandelier crystals, upper/inner tier
+PAINTINGS = True                          # framed paintings on the walls (visual only)
+PAINTING_TEXTURES = True                  # False = plain coloured canvases (if textures don't load)
+PIANO = True                              # grand piano + bench + platform in the courtyard
+PIANO_KEYS = True                         # 52 white + 36 black keys (False = one plain keyboard slab)
 
 # ============================== COLOURS ==============================
 # Romantic / classy "Dar TuniBot" palette: cream + gold trim, champagne floor,
@@ -110,14 +135,45 @@ C = {
     'terrace_floor': (0.84, 0.76, 0.61),
     'glass': (0.85, 0.90, 0.92),        # vase glass
     'rose': (0.70, 0.05, 0.10),         # rose blooms / petals
+    'lamp_glow': (1.0, 0.85, 0.6),      # picture-lamp shades
+    'lacquer': (0.015, 0.015, 0.02),    # black piano lacquer
+    'wood_light': (0.72, 0.52, 0.30),   # spruce soundboard inside the piano
 }
+
+
+# Average colour of each painting (printed by make_dar_art.py): the plain canvas
+# colour used when PAINTING_TEXTURES = False.
+ART_AVG = {
+    'sidi_bou_said_sunset': (0.49, 0.30, 0.40), 'roses_still_life': (0.25, 0.11, 0.10),
+    'mediterranean_seascape': (0.42, 0.56, 0.64), 'desert_dunes_night': (0.35, 0.25, 0.26),
+    'zellige_arch': (0.76, 0.73, 0.65), 'gold_burgundy_bands': (0.49, 0.21, 0.18),
+    'gold_burgundy_rings': (0.35, 0.08, 0.13), 'blue_door': (0.53, 0.56, 0.69),
+    'olive_grove': (0.75, 0.62, 0.40),
+}
+
+
+def art_mat(texture):
+    """Canvas material: the painting as a PBR albedo map on a white base (so its colours
+    are not tinted), or its average colour as a plain fallback."""
+    if not PAINTING_TEXTURES:
+        r, g, b = ART_AVG[texture]
+        return (f'<material><ambient>{r} {g} {b} 1</ambient><diffuse>{r} {g} {b} 1</diffuse>'
+                f'<specular>0.05 0.05 0.05 1</specular></material>')
+    return ('<material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse>'
+            '<specular>0.05 0.05 0.05 1</specular><pbr><metal>'
+            f'<albedo_map>model://dar_art/materials/textures/{texture}.png</albedo_map>'
+            '<roughness>0.9</roughness><metalness>0.0</metalness></metal></pbr></material>')
+
+
+SPECULAR = {'lacquer': 0.7}              # glossy colours; everything else is 0.1
 
 
 def mat(c, emissive=None):
     r, g, b = C[c]
     e = f'<emissive>{emissive[0]} {emissive[1]} {emissive[2]} 1</emissive>' if emissive else ''
+    sp = SPECULAR.get(c, 0.1)
     return (f'<material><ambient>{r} {g} {b} 1</ambient><diffuse>{r} {g} {b} 1</diffuse>'
-            f'<specular>0.1 0.1 0.1 1</specular>{e}</material>')
+            f'<specular>{sp} {sp} {sp} 1</specular>{e}</material>')
 
 
 def point_light(name, pos, diffuse=(1.0, 0.8, 0.5)):
@@ -154,18 +210,19 @@ COLLISIONS = []
 
 
 def part(name, shape, size, pose, colour, collide=True, emissive=None, rp=(0, 0), transparency=0,
-         visible=True):
+         visible=True, material=None):
     """One visual (+ collision) element inside a link. pose = (x, y, z, yaw).
     rp = (roll, pitch) tilts the part; only allowed on visual-only parts, since
     the navigability checker assumes collision shapes are upright.
-    visible=False writes only the collision (an invisible solid block)."""
+    visible=False writes only the collision (an invisible solid block).
+    material= replaces the colour's material with this XML (e.g. art_mat())."""
     x, y, z, yaw = pose
     assert rp == (0, 0) or not collide, f'{name}: tilted parts must be visual only'
     assert visible or collide, f'{name}: a part must be visible or solid'
     p = f'<pose>{x:.3f} {y:.3f} {z:.3f} {rp[0]:.4f} {rp[1]:.4f} {yaw:.4f}</pose>'
     g = geom(shape, size)
     t = f'<transparency>{transparency}</transparency>' if transparency else ''
-    s = f'<visual name="{name}_v">{p}<geometry>{g}</geometry>{t}{mat(colour, emissive)}</visual>' if visible else ''
+    s = f'<visual name="{name}_v">{p}<geometry>{g}</geometry>{t}{material or mat(colour, emissive)}</visual>' if visible else ''
     if collide:
         s += f'<collision name="{name}_c">{p}<geometry>{g}</geometry></collision>'
     return Part(s, shape, size, pose, collide)
@@ -442,6 +499,92 @@ def build():
                                          (x0 + t * (x1 - x0), row_y, 2.7 - sag, 0), 'ivory',
                                          collide=False, emissive=FAIRY_GLOW))
         out.append(model('fairy_lights', fairy_parts))
+
+    # ---------- paintings: gold frame, canvas 5 cm off the wall, small brass picture lamp ----------
+    # Built in a local frame where +x points out of the wall into the room. Visual only.
+    if PAINTINGS:
+        facing_yaw = {'E': 0.0, 'N': math.pi / 2, 'W': math.pi, 'S': -math.pi / 2}
+        for name, (texture, x, y, facing, fmt) in PAINTINGS_AT.items():
+            cw, ch = (1.2, 0.9) if fmt == 'land' else (0.8, 1.0)
+            z = PAINTING_Z
+            out.append(model(name, [
+                part('frame', 'box', (0.04, cw + 0.14, ch + 0.14), (0.030, 0, z, 0), 'gold', collide=False),
+                part('liner', 'box', (0.01, cw + 0.04, ch + 0.04), (0.052, 0, z, 0), 'dark_wood', collide=False),
+                part('canvas', 'box', (0.01, cw, ch), (0.057, 0, z, 0), 'ivory', collide=False,
+                     material=art_mat(texture)),
+                part('lamp_arm', 'box', (0.14, 0.02, 0.02), (0.08, 0, z + ch / 2 + 0.14, 0), 'gold', collide=False),
+                part('lamp', 'cyl', (0.025, cw * 0.55), (0.15, 0, z + ch / 2 + 0.12, 0), 'gold', collide=False,
+                     rp=(math.pi / 2, 0)),
+                part('lamp_glow', 'box', (0.02, cw * 0.5, 0.01), (0.15, 0, z + ch / 2 + 0.095, 0), 'lamp_glow',
+                     collide=False, emissive=(1.0, 0.8, 0.5)),
+            ], (x, y, 0, facing_yaw[facing])))
+
+    # ---------- grand piano: black lacquer, lid raised, on a black-marble platform ----------
+    # Local frame: keyboard at -x (towards the fountain), tail at +x, bass (straight) side at +y.
+    # The lidar (0.19 m) would only see thin legs, so ONE invisible solid box covers the whole
+    # 1.6 x 1.5 m footprint up to 1.0 m, and the bench has its own solid box. The rest is visual.
+    if PIANO:
+        pp = [part('solid', 'box', (1.6, 1.5, 1.0), (0, 0, 0.5, 0), 'lacquer', visible=False),
+              part('bench_solid', 'box', (0.36, 0.80, 0.50), (-1.20, 0, 0.25, 0), 'lacquer', visible=False)]
+        # platform: gold edge under a black-marble disc, above the courtyard inlay (top z 0.030)
+        pp += [part('platform_edge', 'cyl', (1.25, 0.006), (-0.25, 0, 0.034, 0), 'gold', collide=False),
+               part('platform', 'cyl', (1.22, 0.010), (-0.25, 0, 0.040, 0), 'black_marble', collide=False)]
+        # case: a box + a cylinder for the curved treble-side tail, rim 0.70..1.00 m
+        pp += [part('case', 'box', (0.80, 1.50, 0.30), (-0.15, 0, 0.85, 0), 'lacquer', collide=False),
+               part('tail', 'cyl', (0.55, 0.30), (0.25, 0.20, 0.85, 0), 'lacquer', collide=False),
+               part('rim_trim', 'box', (0.82, 1.52, 0.02), (-0.15, 0, 0.71, 0), 'gold', collide=False),
+               part('tail_trim', 'cyl', (0.56, 0.02), (0.25, 0.20, 0.71, 0), 'gold', collide=False),
+               part('soundboard', 'box', (0.70, 1.36, 0.005), (-0.10, 0, 1.003, 0), 'wood_light', collide=False)]
+        # lid hinged on the bass side (+y), raised 30 deg, held by a prop stick
+        lid_a, lid_w = math.radians(30), 1.50
+        pp += [part('lid', 'box', (1.10, lid_w, 0.02),
+                    (0.25, 0.75 - lid_w / 2 * math.cos(lid_a), 1.0 + lid_w / 2 * math.sin(lid_a), 0),
+                    'lacquer', collide=False, rp=(-lid_a, 0)),
+               part('prop', 'cyl', (0.012, 0.62), (0.35, 0.75 - 1.30 * math.cos(lid_a), 1.31, 0), 'lacquer', collide=False)]
+        # keyboard: key bed, cheek blocks, fallboard, keys
+        pp += [part('keybed', 'box', (0.26, 1.34, 0.05), (-0.68, 0, 0.705, 0), 'lacquer', collide=False),
+               part('cheek_l', 'box', (0.26, 0.06, 0.12), (-0.68, 0.67, 0.77, 0), 'lacquer', collide=False),
+               part('cheek_r', 'box', (0.26, 0.06, 0.12), (-0.68, -0.67, 0.77, 0), 'lacquer', collide=False),
+               part('fallboard', 'box', (0.04, 1.28, 0.12), (-0.56, 0, 0.79, 0), 'lacquer', collide=False),
+               part('nameboard_trim', 'box', (0.045, 0.40, 0.01), (-0.56, 0, 0.83, 0), 'gold', collide=False)]
+        kw = 1.22 / 52                                    # 52 white keys across 1.22 m
+        if PIANO_KEYS:
+            for i in range(52):
+                ky = 0.61 - (i + 0.5) * kw                # A0 at the bass (+y) end
+                pp.append(part(f'wkey{i}', 'box', (0.15, kw - 0.002, 0.02), (-0.72, ky, 0.74, 0),
+                               'porcelain', collide=False))
+                if 'ACDFG'.count('ABCDEFG'[i % 7]) and i < 51:   # black key after A, C, D, F, G
+                    pp.append(part(f'bkey{i}', 'box', (0.09, kw * 0.55, 0.02), (-0.67, ky - kw / 2, 0.755, 0),
+                                   'lacquer', collide=False))
+        else:
+            pp.append(part('keys', 'box', (0.15, 1.22, 0.02), (-0.72, 0, 0.74, 0), 'porcelain', collide=False))
+        # music stand (tilted back) with an open score
+        pp += [part('stand', 'box', (0.015, 0.80, 0.30), (-0.46, 0, 1.14, 0), 'lacquer', collide=False, rp=(0, 0.25)),
+               part('score', 'box', (0.004, 0.46, 0.26), (-0.47, 0, 1.15, 0), 'porcelain', collide=False, rp=(0, 0.25))]
+        # three legs with gold casters, lyre and three gold pedals
+        for n, (lx, ly) in enumerate([(-0.45, 0.62), (-0.45, -0.62), (0.62, 0.40)]):
+            pp += [part(f'leg{n}', 'cyl', (0.05, 0.68), (lx, ly, 0.36, 0), 'lacquer', collide=False),
+                   part(f'caster{n}', 'sphere', (0.035,), (lx, ly, 0.035, 0), 'gold', collide=False)]
+        pp += [part('lyre_a', 'cyl', (0.015, 0.58), (-0.40, 0.07, 0.40, 0), 'lacquer', collide=False),
+               part('lyre_b', 'cyl', (0.015, 0.58), (-0.40, -0.07, 0.40, 0), 'lacquer', collide=False),
+               part('pedal_box', 'box', (0.10, 0.24, 0.07), (-0.40, 0, 0.08, 0), 'lacquer', collide=False)]
+        for n, py in enumerate((0.06, 0, -0.06)):
+            pp.append(part(f'pedal{n}', 'box', (0.09, 0.03, 0.015), (-0.48, py, 0.07, 0), 'gold', collide=False))
+        # bench: black cushion top, four legs
+        pp.append(part('bench_top', 'box', (0.36, 0.80, 0.08), (-1.20, 0, 0.46, 0), 'lacquer', collide=False))
+        for n, (bx, by) in enumerate([(-1.05, 0.36), (-1.05, -0.36), (-1.35, 0.36), (-1.35, -0.36)]):
+            pp.append(part(f'bench_leg{n}', 'cyl', (0.025, 0.42), (bx, by, 0.21, 0), 'lacquer', collide=False))
+        # nice touch: a candle and a small vase of roses on the front of the case
+        pp += [part('candle_dish', 'cyl', (0.05, 0.01), (-0.36, 0.60, 1.005, 0), 'gold', collide=False),
+               part('candle', 'cyl', (0.02, 0.10), (-0.36, 0.60, 1.06, 0), 'porcelain', collide=False),
+               part('flame', 'sphere', (0.014,), (-0.36, 0.60, 1.125, 0), 'gold', collide=False,
+                    emissive=(1.0, 0.60, 0.20)),
+               part('vase', 'cyl', (0.035, 0.12), (-0.36, -0.60, 1.06, 0), 'crystal', collide=False, transparency=0.5)]
+        for r in range(3):
+            a = r * 2 * math.pi / 3
+            pp.append(part(f'rose{r}', 'sphere', (0.03,), (-0.36 + 0.025 * math.cos(a), -0.60 + 0.025 * math.sin(a), 1.14, 0),
+                           'rose', collide=False))
+        out.append(model('grand_piano', pp, (PIANO_X, PIANO_Y, 0, PIANO_YAW)))
 
     # ---------- evening mood: 3 warm point lights, no shadows ----------
     out.append(point_light('courtyard_light', (0.0, 1.0, 2.6)))
