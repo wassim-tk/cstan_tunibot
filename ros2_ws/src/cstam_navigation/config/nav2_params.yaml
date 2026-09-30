@@ -436,4 +436,6 @@ docking_server:
       transform_tolerance: 0.1
       projection_time: 5.0
       simulation_step: 0.1
-      dock_collision_threshold: 0.3
+      # Ignore "collisions" within this distance of the dock: the pad centre is
+      # only 0.40 m from the charging tower, i.e. just outside the 0.38 m footprint.
+      dock_collision_threshold: 0.6

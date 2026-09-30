@@ -292,12 +292,25 @@ def main(args=None):
                 goal = UndockRobot.Goal()
                 goal.dock_type = self.dock_type
                 goal.max_undocking_time = 30.0
-                self.send(self.undock_client, goal, self.on_undock_done)
+                self.send(self.undock_client, goal, self.on_server_undock_done)
             else:
-                yaw = self.dock_wp.yaw
-                x = self.dock_wp.x - self.staging_offset * math.cos(yaw)
-                y = self.dock_wp.y - self.staging_offset * math.sin(yaw)
-                self.send(self.nav_client, self.nav_goal(x, y, yaw), self.on_undock_done)
+                self.undock_to_staging()
+
+        def on_server_undock_done(self, success, status):
+            if success:
+                self.on_undock_done(True, status)
+            else:
+                # The docking server only knows it is docked if it did the
+                # docking itself (not after a restart with the robot already
+                # on the pad): back out to the staging pose with Nav2 instead.
+                self.get_logger().info('Docking server cannot undock; backing out with Nav2')
+                self.undock_to_staging()
+
+        def undock_to_staging(self):
+            yaw = self.dock_wp.yaw
+            x = self.dock_wp.x - self.staging_offset * math.cos(yaw)
+            y = self.dock_wp.y - self.staging_offset * math.sin(yaw)
+            self.send(self.nav_client, self.nav_goal(x, y, yaw), self.on_undock_done)
 
         def on_undock_done(self, success, status):
             self.dock_goal = None

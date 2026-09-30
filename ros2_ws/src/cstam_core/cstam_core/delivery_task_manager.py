@@ -372,7 +372,7 @@ def main(args=None):
             success = status == GoalStatus.STATUS_SUCCEEDED
             if seq == self.manager._nav_seq:
                 self.goal_handle = None
-                if not success:
+                if not success and status != GoalStatus.STATUS_CANCELED:
                     self.get_logger().warn(f'Navigation ended with status {status}')
             self.manager.on_nav_result(seq, success, self.now())
             self.publish_status()
