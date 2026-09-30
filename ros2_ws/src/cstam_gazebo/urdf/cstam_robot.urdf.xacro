@@ -66,10 +66,12 @@
       </geometry>
       <material name="metallic_dark"/>
     </visual>
+    <!-- Sphere collision: a single, well-defined contact point under the
+         axle keeps wheel odometry consistent with the real motion -->
     <collision>
-      <origin xyz="0 0 0" rpy="1.5707963 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.09" length="0.045"/>
+        <sphere radius="0.09"/>
       </geometry>
     </collision>
     <inertial>
@@ -94,10 +96,12 @@
       </geometry>
       <material name="metallic_dark"/>
     </visual>
+    <!-- Sphere collision: a single, well-defined contact point under the
+         axle keeps wheel odometry consistent with the real motion -->
     <collision>
-      <origin xyz="0 0 0" rpy="1.5707963 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.09" length="0.045"/>
+        <sphere radius="0.09"/>
       </geometry>
     </collision>
     <inertial>
@@ -113,14 +117,15 @@
     <axis xyz="0 1 0"/>
   </joint>
 
-  <!-- Front Passive Caster -->
+  <!-- Front Passive Caster (5 mm above the floor so the drive wheels always
+       carry the robot's weight and never lose traction) -->
   <link name="caster_front">
     <visual>
-      <geometry><sphere radius="0.045"/></geometry>
+      <geometry><sphere radius="0.040"/></geometry>
       <material name="metallic_dark"/>
     </visual>
     <collision>
-      <geometry><sphere radius="0.045"/></geometry>
+      <geometry><sphere radius="0.040"/></geometry>
     </collision>
     <inertial>
       <mass value="0.5"/>
@@ -137,11 +142,11 @@
   <!-- Rear Passive Caster -->
   <link name="caster_rear">
     <visual>
-      <geometry><sphere radius="0.045"/></geometry>
+      <geometry><sphere radius="0.040"/></geometry>
       <material name="metallic_dark"/>
     </visual>
     <collision>
-      <geometry><sphere radius="0.045"/></geometry>
+      <geometry><sphere radius="0.040"/></geometry>
     </collision>
     <inertial>
       <mass value="0.5"/>
@@ -210,6 +215,29 @@
     <child link="head_console"/>
     <origin xyz="0.05 0 1.15" rpy="0 0.35 0"/>
   </joint>
+
+  <!-- Contact properties: frictionless casters (they must slide, otherwise
+       they drag the robot and wheel odometry drifts), high-grip drive wheels -->
+  <gazebo reference="caster_front">
+    <mu1>0.0</mu1>
+    <mu2>0.0</mu2>
+  </gazebo>
+  <gazebo reference="caster_rear">
+    <mu1>0.0</mu1>
+    <mu2>0.0</mu2>
+  </gazebo>
+  <gazebo reference="left_wheel">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+  </gazebo>
+  <gazebo reference="right_wheel">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+  </gazebo>
 
   <!-- Gazebo Sim Differential Drive Plugin -->
   <gazebo>
