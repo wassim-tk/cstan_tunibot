@@ -6,7 +6,6 @@ search-path = [
     "ros2_ws/install/cstam_gazebo/lib/python3.12/site-packages",
     "ros2_ws/install/cstam_navigation/lib/python3.12/site-packages",
     "ros2_ws/src/cstam_core",
-    "cstam_web_bridge"
 ]
 
 extraSearchPaths = [

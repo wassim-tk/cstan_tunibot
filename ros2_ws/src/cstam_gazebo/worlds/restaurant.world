@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <sdf version="1.6">
   <world name="restaurant">
-    <physics name="1ms" type="ignored"><max_step_size>0.001</max_step_size><real_time_factor>1.0</real_time_factor></physics><plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics" /><plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" /><plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" /><plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors"><render_engine>ogre2</render_engine></plugin><light name="sun" type="directional">
+    <physics name="4ms" type="ignored"><max_step_size>0.004</max_step_size><real_time_factor>1.0</real_time_factor></physics><plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics" /><plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" /><plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" /><plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors"><render_engine>ogre2</render_engine></plugin><light name="sun" type="directional">
       <cast_shadows>1</cast_shadows>
       <pose frame="">0 0 10 0 -0 0</pose>
       <diffuse>0.8 0.8 0.8 1</diffuse>
@@ -383,6 +383,17 @@
       <static>true</static>
       <pose>-8.2360 1.4091 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -650,6 +661,17 @@
       <static>true</static>
       <pose>-5.6360 1.4091 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -917,6 +939,17 @@
       <static>true</static>
       <pose>-3.0360 1.4091 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -1184,6 +1217,17 @@
       <static>true</static>
       <pose>-0.4360 1.4091 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -1451,6 +1495,17 @@
       <static>true</static>
       <pose>2.1640 1.4091 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -1718,6 +1773,17 @@
       <static>true</static>
       <pose>4.7640 1.4091 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -1985,6 +2051,17 @@
       <static>true</static>
       <pose>-8.2360 -2.1909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -2252,6 +2329,17 @@
       <static>true</static>
       <pose>-5.6360 -2.1909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -2519,6 +2607,17 @@
       <static>true</static>
       <pose>-3.0360 -2.1909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -2786,6 +2885,17 @@
       <static>true</static>
       <pose>-0.4360 -2.1909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -3053,6 +3163,17 @@
       <static>true</static>
       <pose>2.1640 -2.1909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -3320,6 +3441,17 @@
       <static>true</static>
       <pose>4.7640 -2.1909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -3587,6 +3719,17 @@
       <static>true</static>
       <pose>-8.2360 -6.7909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -3854,6 +3997,17 @@
       <static>true</static>
       <pose>-5.6360 -6.7909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -4121,6 +4275,17 @@
       <static>true</static>
       <pose>-3.0360 -6.7909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -4388,6 +4553,17 @@
       <static>true</static>
       <pose>-0.4360 -6.7909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -4655,6 +4831,17 @@
       <static>true</static>
       <pose>2.1640 -6.7909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -4922,6 +5109,17 @@
       <static>true</static>
       <pose>4.7640 -6.7909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -5189,6 +5387,17 @@
       <static>true</static>
       <pose>-8.2360 -10.3909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -5456,6 +5665,17 @@
       <static>true</static>
       <pose>-5.6360 -10.3909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -5723,6 +5943,17 @@
       <static>true</static>
       <pose>-3.0360 -10.3909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -5990,6 +6221,17 @@
       <static>true</static>
       <pose>-0.4360 -10.3909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -6257,6 +6499,17 @@
       <static>true</static>
       <pose>2.1640 -10.3909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -6524,6 +6777,17 @@
       <static>true</static>
       <pose>4.7640 -10.3909 0 0 0 0</pose>
       <link name="link">
+        <!-- Solid table base: makes the table footprint visible to the 2D LiDAR
+             (the table top overhangs at 0.73 m, above the scan plane) -->
+        <collision name="base_collision">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+        </collision>
+        <visual name="base_visual">
+          <pose>0.0000 0.0000 0.2000 0 0 0</pose>
+          <geometry><box><size>1.0000 0.6000 0.4000</size></box></geometry>
+          <material><ambient>0.35 0.22 0.12 1</ambient><diffuse>0.35 0.22 0.12 1</diffuse><specular>0.05 0.05 0.05 1</specular></material>
+        </visual>
         <collision name="top_collision">
           <pose>0.0000 0.0000 0.7300 0 0 0</pose>
           <geometry><box><size>1.2000 0.8000 0.0400</size></box></geometry>
@@ -6793,7 +7057,7 @@
          Staging pose  (world): 7.064 -11.791  yaw -1.5708 (1 m in front of the dock) -->
     <model name="docking_station">
       <static>true</static>
-      <pose>7.0640 -12.7909 0 0 0 1.5708</pose>
+      <pose>7.8500 -12.7900 0 0 0 3.14159</pose>
       <link name="link">
         <!-- Floor pad: visual only, so the robot can drive onto it -->
         <visual name="pad_visual">
